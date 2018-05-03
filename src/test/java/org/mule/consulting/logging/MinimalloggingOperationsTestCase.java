@@ -31,6 +31,15 @@ public class MinimalloggingOperationsTestCase extends MuleArtifactFunctionalTest
   }
 
   @Test
+  public void executeUseTimedScope() throws Exception {
+    LinkedHashMap<String, String> payloadValue = ((LinkedHashMap<String, String>) flowRunner("use-timed-scope").run()
+                                      .getMessage()
+                                      .getPayload()
+                                      .getValue());
+    assertNotNull(payloadValue);
+  }
+
+  @Test
   public void executeRetrieveInfoOperation() throws Exception {
     String payloadValue = ((String) flowRunner("retrieveInfoFlow")
                                       .run()

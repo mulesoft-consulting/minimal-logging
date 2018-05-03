@@ -1,19 +1,26 @@
-<mule xmlns="http://www.mulesoft.org/schema/mule/core"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:min-log="http://www.mulesoft.org/schema/mule/min-log"
-      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:min-log="http://www.mulesoft.org/schema/mule/min-log"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
           http://www.mulesoft.org/schema/mule/min-log http://www.mulesoft.org/schema/mule/min-log/current/mule-min-log.xsd">
 
-    <min-log:config name="config" configId="configId">
-        <min-log:connection requiredParameter="aValue" />
-    </min-log:config>
+	<min-log:config name="config" configId="configId">
+		<min-log:connection requiredParameter="aValue" />
+	</min-log:config>
 
-    <flow name="set-transaction-properties">
-        <min-log:set-transaction-properties headers="#[null]" />
-    </flow>
+	<flow name="set-transaction-properties">
+		<min-log:set-transaction-properties
+			headers="#[null]" />
+	</flow>
 
-    <flow name="retrieveInfoFlow">
-        <min-log:retrieve-info config-ref="config"/>
-    </flow>
+	<flow name="use-timed-scope">
+		<min-log:timed transactionProperties="#[null]">
+			<min-log:set-transaction-properties
+				headers="#[null]" />
+		</min-log:timed>
+	</flow>
+
+	<flow name="retrieveInfoFlow">
+		<min-log:retrieve-info config-ref="config" />
+	</flow>
 
 </mule>
