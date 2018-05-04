@@ -9,7 +9,6 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
  * operations since they represent something core from the extension.
  */
 @Operations(MinLog.class)
-@ConnectionProviders(MinimalloggingConnectionProvider.class)
 public class MinimalloggingConfiguration {
 
   @Parameter

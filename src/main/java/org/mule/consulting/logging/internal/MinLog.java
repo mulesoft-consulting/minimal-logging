@@ -5,12 +5,15 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
+import org.mule.runtime.api.component.location.ComponentLocation;
 import org.mule.runtime.api.util.MultiMap;
+import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.dsl.xml.ParameterDsl;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.runtime.process.CompletionCallback;
 import org.mule.runtime.extension.api.runtime.route.Chain;
 import org.slf4j.Logger;
@@ -26,37 +29,83 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class MinLog {
 	private final Logger LOGGER = LoggerFactory.getLogger(MinLog.class);
 
-  /**
-   * Example of an operation that uses the configuration and a connection instance to perform some action.
-   */
-  @MediaType(value = ANY, strict = false)
-  public String retrieveInfo(@Config MinimalloggingConfiguration configuration, @Connection MinimalloggingConnection connection){
-    return "Using Configuration [" + configuration.getConfigId() + "] with Connection id [" + connection.getId() + "]";
-  }
-
 	/**
 	 * Generate a transaction id if required, otherwise return the current
 	 * transaction id.
 	 */
 	@MediaType(value = ANY, strict = false)
-	public LinkedHashMap<String, String> setTransactionProperties(@Optional MultiMap headers) {
-		LinkedHashMap<String, String> retvalue = new LinkedHashMap<String, String>();
+	@Alias("new")
+	public LinkedHashMap<String, String> setTransactionProperties(@Optional MultiMap headers, ComponentLocation location) {
+		LinkedHashMap<String, String> transactionProperties = new LinkedHashMap<String, String>();
 
+		addLocation(transactionProperties, location);
+		
 		if (headers != null) {
 			if (headers.get("client_id") != null) {
-				retvalue.put("client_id", (String) headers.get("client_id"));
+				transactionProperties.put("client_id", (String) headers.get("client_id"));
 			}
 			if (headers.get("x-transaction-id") != null) {
-				retvalue.put("x-transaction-id", (String) headers.get("x-transaction-id"));
+				transactionProperties.put("x-transaction-id", (String) headers.get("x-transaction-id"));
 			} else {
-				retvalue.put("x-transaction-id", UUID.randomUUID().toString());
-				logMessage("Generated x-transaction-id", retvalue);
+				transactionProperties.put("x-transaction-id", UUID.randomUUID().toString());
+				logMessage("INFO", "Generated x-transaction-id", transactionProperties);
 			}
 		}
-		return retvalue;
+		return transactionProperties;
+	}
+	
+	/**
+	 * Add the specified key/value pair to the indicated transactionProperties LinkedHashMap
+	 * 
+	 * @param key
+	 * @param value
+	 * @param transactionProperties
+	 * @param location
+	 * @return
+	 */
+	@MediaType(value = ANY, strict = false)
+	public LinkedHashMap<String, String> put(String key, String value, @Optional LinkedHashMap<String, String> transactionProperties, ComponentLocation location) {
+		
+		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
+		if (transactionProperties != null) {
+			tempMap.putAll(transactionProperties);
+		}
+		tempMap.put(key, value);
+		return tempMap;
+	}
+	
+	
+	/**
+	 * Add the all specified (newProperties) LinkedHashMap key/value pairs to the indicated transactionProperties LinkedHashMap
+	 * 
+	 * @param newProperties
+	 * @param transactionProperties
+	 * @param location
+	 * @return
+	 */
+	@MediaType(value = ANY, strict = false)
+	public LinkedHashMap<String, String> putAll(LinkedHashMap<String, String> newProperties, @Optional LinkedHashMap<String, String> transactionProperties, ComponentLocation location) {
+		
+		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
+		if (transactionProperties != null) {
+			tempMap.putAll(transactionProperties);
+		}
+		tempMap.putAll(newProperties);
+		return tempMap;
 	}
 
-	public void timed(@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> transactionProperties, Chain operations,
+	/**
+	 * Scope for generating enter and exit message with elapsed time
+	 * 
+	 * @param transactionProperties
+	 * @param location
+	 * @param operations
+	 * @param callback
+	 */
+	public void timed(
+			@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> transactionProperties, 
+			ComponentLocation location,
+			Chain operations,
 			CompletionCallback<Object, Object> callback) {
 		
 		long startTime = System.currentTimeMillis();
@@ -68,37 +117,111 @@ public class MinLog {
 			}
 		}
 
+		addLocation(tempMap, location);
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("enter ");
-		logMessage(sb.toString(), tempMap);
+		logMessage("INFO", sb.toString(), tempMap);
 
 		operations.process(result -> {
 			long elapsedTime = System.currentTimeMillis() - startTime;
 			tempMap.put("elapsedMS", Long.toString(elapsedTime));
 			StringBuilder sbsuccess = new StringBuilder();
 			sbsuccess.append("exit ");
-			logMessage(sbsuccess.toString(), tempMap);
+			logMessage("INFO", sbsuccess.toString(), tempMap);
 			callback.success(result);
 		}, (error, previous) -> {
 			long elapsedTime = System.currentTimeMillis() - startTime;
 			tempMap.put("elapsedMS", Long.toString(elapsedTime));
 			StringBuilder sberror = new StringBuilder();
 			sberror.append("exit with error ").append(error.getMessage());
-			logMessage(sberror.toString(), tempMap);
+			logMessage("INFO", sberror.toString(), tempMap);
 			callback.error(error);
 		});
 	}
+
+	/**
+	 * Generate a log message of level INFO, WARN, ERROR or DEBUG.  All other levels result in no message generated.
+	 * 
+	 * @param level
+	 * @param msg
+	 * @param transactionProperties
+	 * @param location
+	 */
+	public void log(@Optional(defaultValue="INFO") String level, 
+			String msg,
+			@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> transactionProperties, 
+			ComponentLocation location) {
+
+		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
+		if (transactionProperties != null) {
+			for (String item : transactionProperties.keySet()) {
+				tempMap.put(item, transactionProperties.get(item));
+			}
+		}
+
+		addLocation(tempMap, location);
+
+		logMessage(level.toUpperCase(), msg, tempMap);
+	}
 	
-	private void logMessage(String msg, LinkedHashMap <String, String> transactionProperties) {
+	/*
+	 * Add component location values to the transactionProperties
+	 */
+	private void addLocation(LinkedHashMap <String, String> transactionProperties, ComponentLocation location) {
+		if (location != null) {
+			java.util.Optional<String> fileName = location.getFileName();
+			java.util.Optional<Integer> lineNumber = location.getLineInFile();
+			transactionProperties.put("flow", location.getRootContainerName());
+			if (fileName.isPresent()) {
+				transactionProperties.put("fileName", fileName.get());
+			}
+			if (lineNumber.isPresent()) {
+				transactionProperties.put("lineNumber", lineNumber.get().toString());
+			}
+		} else {
+			LOGGER.debug("Missing location information");
+		}
+	}
+	
+	/*
+	 * Write a log message
+	 */
+	private void logMessage(String level, String msg, LinkedHashMap<String, String> transactionProperties) {
+		
+		switch (level) {
+		case ("INFO"):
+			LOGGER.info(formatLogMsg(msg, transactionProperties));
+			break;
+		case ("DEBUG"):
+			LOGGER.debug(formatLogMsg(msg, transactionProperties));
+			break;
+		case ("ERROR"):
+			LOGGER.error(formatLogMsg(msg, transactionProperties));
+			break;
+		case ("WARN"):
+			LOGGER.warn(formatLogMsg(msg, transactionProperties));
+			break;
+		default:
+			//do nothing
+		}
+	}
+	
+	/*
+	 * Create the log message by adding the transactionProperties to the message as a JSON payload
+	 */
+	private String formatLogMsg(String msg, LinkedHashMap<String, String> transactionProperties) {
 		ObjectMapper mapper = new ObjectMapper();
-		String payload = null;
+		String payload = "";
 		try {
-			payload = mapper.writeValueAsString(transactionProperties);
+			if (transactionProperties != null) {
+				payload = mapper.writeValueAsString(transactionProperties);
+			}
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
 		StringBuilder sb = new StringBuilder();
 		sb.append(msg).append(" ").append(payload);
-		LOGGER.info(sb.toString());
+		return sb.toString();
 	}
 }

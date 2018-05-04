@@ -4,23 +4,29 @@
           http://www.mulesoft.org/schema/mule/min-log http://www.mulesoft.org/schema/mule/min-log/current/mule-min-log.xsd">
 
 	<min-log:config name="config" configId="configId">
-		<min-log:connection requiredParameter="aValue" />
 	</min-log:config>
 
 	<flow name="set-transaction-properties">
-		<min-log:set-transaction-properties
+		<min-log:new
 			headers="#[null]" />
 	</flow>
 
-	<flow name="use-timed-scope">
-		<min-log:timed transactionProperties="#[null]">
-			<min-log:set-transaction-properties
-				headers="#[null]" />
-		</min-log:timed>
+	<flow name="log">
+		<min-log:log level="WARN" msg="This is a test warning message" transactionProperties="#[null]" />
 	</flow>
 
-	<flow name="retrieveInfoFlow">
-		<min-log:retrieve-info config-ref="config" />
+	<flow name="put">
+		<min-log:put key="peters" value="piper" transactionProperties="#[null]" />
+	</flow>
+
+	<flow name="putAll">
+		<min-log:put-all newProperties="#[{a:&quot;b&quot;, x : &quot;y&quot;}]" transactionProperties="#[peters:&quot;piper&quot;]" />
+	</flow>
+
+	<flow name="use-timed-scope">
+		<min-log:timed >
+			<min-log:new headers="#[null]" />
+		</min-log:timed>
 	</flow>
 
 </mule>

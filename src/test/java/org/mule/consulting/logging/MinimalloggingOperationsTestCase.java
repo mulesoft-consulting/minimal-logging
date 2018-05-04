@@ -31,21 +31,39 @@ public class MinimalloggingOperationsTestCase extends MuleArtifactFunctionalTest
   }
 
   @Test
+  public void executeLog() throws Exception {
+    LinkedHashMap<String, String> payloadValue = ((LinkedHashMap<String, String>) flowRunner("log").run()
+                                      .getMessage()
+                                      .getPayload()
+                                      .getValue());
+  }
+
+  @Test
+  public void executePut() throws Exception {
+	  LinkedHashMap<String, String> payloadValue = ((LinkedHashMap<String, String>) flowRunner("put")
+                                      .run()
+                                      .getMessage()
+                                      .getPayload()
+                                      .getValue());
+    assertThat(payloadValue.toString(), is("{peters=piper}"));
+  }
+
+  @Test
+  public void executePutAll() throws Exception {
+	  LinkedHashMap<String, String> payloadValue = ((LinkedHashMap<String, String>) flowRunner("putAll")
+                                      .run()
+                                      .getMessage()
+                                      .getPayload()
+                                      .getValue());
+    assertThat(payloadValue.toString(), is("{peters=piper, a=b, x=y}"));
+  }
+
+  @Test
   public void executeUseTimedScope() throws Exception {
     LinkedHashMap<String, String> payloadValue = ((LinkedHashMap<String, String>) flowRunner("use-timed-scope").run()
                                       .getMessage()
                                       .getPayload()
                                       .getValue());
     assertNotNull(payloadValue);
-  }
-
-  @Test
-  public void executeRetrieveInfoOperation() throws Exception {
-    String payloadValue = ((String) flowRunner("retrieveInfoFlow")
-                                      .run()
-                                      .getMessage()
-                                      .getPayload()
-                                      .getValue());
-    assertThat(payloadValue, is("Using Configuration [configId] with Connection id [aValue:100]"));
   }
 }
