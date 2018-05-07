@@ -12,11 +12,11 @@
 	</flow>
 
 	<flow name="log">
-		<min-log:log level="WARN" msg="This is a test warning message" transactionProperties="#[null]" />
+		<min-log:log level="WARN" msg="This is a test warning message" transactionProperties="#[{}]" />
 	</flow>
 
 	<flow name="put">
-		<min-log:put key="peters" value="piper" transactionProperties="#[null]" />
+		<min-log:put key="peters" value="piper" transactionProperties="#[{}]" />
 	</flow>
 
 	<flow name="putAll">
@@ -24,8 +24,9 @@
 	</flow>
 
 	<flow name="use-timed-scope">
-		<min-log:timed >
-			<min-log:new headers="#[null]" />
+		<min-log:new headers="#[null]" target="transactionProperties" />
+		<min-log:timed transactionProperties="#[vars.transactionProperties]">
+			<min-log:new headers="#[null]"/>
 		</min-log:timed>
 	</flow>
 

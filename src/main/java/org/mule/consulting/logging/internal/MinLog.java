@@ -31,7 +31,8 @@ public class MinLog {
 
 	/**
 	 * Generate a transaction id if required, otherwise return the current
-	 * transaction id.
+	 * transaction id. Creates a transactionProperties (as a LinkedHashMap<String, String>) containing the x-transaction-id and optionally 
+	 * any values from the specified headers (as a MultiMap).
 	 */
 	@MediaType(value = ANY, strict = false)
 	@Alias("new")
