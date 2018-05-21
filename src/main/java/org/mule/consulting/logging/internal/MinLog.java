@@ -51,6 +51,9 @@ public class MinLog {
 				transactionProperties.put("x-transaction-id", UUID.randomUUID().toString());
 				logMessage("INFO", "Generated x-transaction-id", transactionProperties);
 			}
+		} else {
+			transactionProperties.put("x-transaction-id", UUID.randomUUID().toString());
+			logMessage("INFO", "Generated x-transaction-id", transactionProperties);
 		}
 		return transactionProperties;
 	}
