@@ -3,6 +3,7 @@ package org.mule.consulting.logging.internal;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.mule.runtime.api.component.location.ComponentLocation;
@@ -36,11 +37,16 @@ public class MinLog {
 	 */
 	@MediaType(value = ANY, strict = false)
 	@Alias("new")
-	public LinkedHashMap<String, String> setTransactionProperties(@Optional MultiMap headers, ComponentLocation location) {
+	public LinkedHashMap<String, String> setTransactionProperties(@Optional Map headers, ComponentLocation location) {
 		LinkedHashMap<String, String> transactionProperties = new LinkedHashMap<String, String>();
 
 		addLocation(transactionProperties, location);
-		
+
+//		if (headers == null) {
+//			System.out.println("headers are null");
+//		} else {
+//			System.out.println("headers: " + headers.toString());
+//		}
 		if (headers != null) {
 			if (headers.get("client_id") != null) {
 				transactionProperties.put("client_id", (String) headers.get("client_id"));
@@ -48,7 +54,7 @@ public class MinLog {
 			if (headers.get("x-transaction-id") != null) {
 				transactionProperties.put("x-transaction-id", (String) headers.get("x-transaction-id"));
 			} else if (headers.get("x_transaction_id") != null) {
-				transactionProperties.put("x-transaction-id", (String) headers.get("x-transaction-id"));				
+				transactionProperties.put("x-transaction-id", (String) headers.get("x_transaction_id"));				
 			} else {
 				transactionProperties.put("x-transaction-id", UUID.randomUUID().toString());
 				logMessage("INFO", "Generated x-transaction-id", transactionProperties);
