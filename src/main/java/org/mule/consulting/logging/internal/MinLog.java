@@ -184,12 +184,12 @@ public class MinLog {
 		if (location != null) {
 			java.util.Optional<String> fileName = location.getFileName();
 			java.util.Optional<Integer> lineNumber = location.getLineInFile();
-			transactionProperties.put("flow", location.getRootContainerName());
+			transactionProperties.put("timer.flow", location.getRootContainerName());
 			if (fileName.isPresent()) {
-				transactionProperties.put("fileName", fileName.get());
+				transactionProperties.put("timer.fileName", fileName.get());
 			}
 			if (lineNumber.isPresent()) {
-				transactionProperties.put("lineNumber", lineNumber.get().toString());
+				transactionProperties.put("timer.lineNumber", lineNumber.get().toString());
 			}
 		} else {
 			LOGGER.debug("Missing location information");
