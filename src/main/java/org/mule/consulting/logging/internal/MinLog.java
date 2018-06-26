@@ -40,7 +40,7 @@ public class MinLog {
 	public LinkedHashMap<String, String> setTransactionProperties(@Optional Map headers, ComponentLocation location) {
 		LinkedHashMap<String, String> transactionProperties = new LinkedHashMap<String, String>();
 
-		addLocation(transactionProperties, location);
+		addLocation("new", transactionProperties, location);
 
 //		if (headers == null) {
 //			System.out.println("headers are null");
@@ -129,7 +129,7 @@ public class MinLog {
 			}
 		}
 
-		addLocation(tempMap, location);
+		addLocation("timer", tempMap, location);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("enter ");
@@ -172,7 +172,7 @@ public class MinLog {
 			}
 		}
 
-		addLocation(tempMap, location);
+		addLocation("log", tempMap, location);
 
 		logMessage(level.toUpperCase(), msg, tempMap);
 	}
@@ -180,16 +180,16 @@ public class MinLog {
 	/*
 	 * Add component location values to the transactionProperties
 	 */
-	private void addLocation(LinkedHashMap <String, String> transactionProperties, ComponentLocation location) {
+	private void addLocation(String sourcePrefix, LinkedHashMap <String, String> transactionProperties, ComponentLocation location) {
 		if (location != null) {
 			java.util.Optional<String> fileName = location.getFileName();
 			java.util.Optional<Integer> lineNumber = location.getLineInFile();
-			transactionProperties.put("timer.flow", location.getRootContainerName());
+			transactionProperties.put(sourcePrefix + ".flow", location.getRootContainerName());
 			if (fileName.isPresent()) {
-				transactionProperties.put("timer.fileName", fileName.get());
+				transactionProperties.put(sourcePrefix + ".fileName", fileName.get());
 			}
 			if (lineNumber.isPresent()) {
-				transactionProperties.put("timer.lineNumber", lineNumber.get().toString());
+				transactionProperties.put(sourcePrefix + "lineNumber", lineNumber.get().toString());
 			}
 		} else {
 			LOGGER.debug("Missing location information");
