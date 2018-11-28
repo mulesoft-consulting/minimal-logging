@@ -15,6 +15,11 @@
 		<min-log:log level="WARN" msg="This is a test warning message" transactionProperties="#[{}]" />
 	</flow>
 
+	<flow name="logEvent">
+		<min-log:log level="WARN" msg="This is a test warning message" transactionProperties="#[{}]" eventData="#[{name:&quot;mulesoft&quot;}]"/>
+	</flow>
+
+
 	<flow name="put">
 		<min-log:put key="peters" value="piper" transactionProperties="#[{}]" />
 	</flow>

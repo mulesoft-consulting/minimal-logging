@@ -1,15 +1,13 @@
 package org.mule.consulting.logging;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import org.junit.Test;
+import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 
 import java.util.LinkedHashMap;
 
-import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
-
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
-
-import org.junit.Test;
 
 public class MinimalloggingOperationsTestCase extends MuleArtifactFunctionalTestCase {
 
@@ -36,6 +34,14 @@ public class MinimalloggingOperationsTestCase extends MuleArtifactFunctionalTest
                                       .getMessage()
                                       .getPayload()
                                       .getValue());
+  }
+
+  @Test
+  public void executeLogEvent() throws Exception {
+    LinkedHashMap<String, String> payloadValue = ((LinkedHashMap<String, String>) flowRunner("logEvent").run()
+            .getMessage()
+            .getPayload()
+            .getValue());
   }
 
   @Test

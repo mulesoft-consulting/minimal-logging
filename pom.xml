@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.mule.consulting.logging</groupId>
     <artifactId>minimal-logging</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>mule-extension</packaging>
     <name>Minimal-logging Extension</name>
 

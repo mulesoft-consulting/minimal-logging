@@ -1,27 +1,23 @@
 package org.mule.consulting.logging.internal;
 
-import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mule.runtime.api.component.location.ComponentLocation;
-import org.mule.runtime.api.util.MultiMap;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.dsl.xml.ParameterDsl;
-import org.mule.runtime.extension.api.annotation.param.Config;
-import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.runtime.process.CompletionCallback;
 import org.mule.runtime.extension.api.runtime.route.Chain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 
 
 /**
@@ -162,8 +158,9 @@ public class MinLog {
 	 */
 	public void log(@Optional(defaultValue="INFO") String level, 
 			String msg,
-			@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> transactionProperties, 
-			ComponentLocation location) {
+					@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> transactionProperties,
+					@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> eventData,
+					ComponentLocation location) {
 
 		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
 		if (transactionProperties != null) {
@@ -173,8 +170,12 @@ public class MinLog {
 		}
 
 		addLocation("log", tempMap, location);
+		if(eventData != null) {
+			logMessage(level.toUpperCase(), msg, tempMap, eventData);
+		} else {
+			logMessage(level.toUpperCase(), msg, tempMap);
+		}
 
-		logMessage(level.toUpperCase(), msg, tempMap);
 	}
 	
 	/*
@@ -200,40 +201,64 @@ public class MinLog {
 	 * Write a log message
 	 */
 	private void logMessage(String level, String msg, LinkedHashMap<String, String> transactionProperties) {
-		
+		logMessage(level,msg,transactionProperties,Collections.emptyMap());
+	}
+
+	/*
+	 * Write a log message
+	 */
+	private void logMessage(String level, String msg, LinkedHashMap<String, String> transactionProperties, Map<String, String> eventData) {
+
 		switch (level) {
-		case ("INFO"):
-			LOGGER.info(formatLogMsg(msg, transactionProperties));
-			break;
-		case ("DEBUG"):
-			LOGGER.debug(formatLogMsg(msg, transactionProperties));
-			break;
-		case ("ERROR"):
-			LOGGER.error(formatLogMsg(msg, transactionProperties));
-			break;
-		case ("WARN"):
-			LOGGER.warn(formatLogMsg(msg, transactionProperties));
-			break;
-		default:
-			//do nothing
+			case ("INFO"):
+				LOGGER.info(formatLogMsg(msg, transactionProperties, eventData));
+				break;
+			case ("DEBUG"):
+				LOGGER.debug(formatLogMsg(msg, transactionProperties, eventData));
+				break;
+			case ("ERROR"):
+				LOGGER.error(formatLogMsg(msg, transactionProperties, eventData));
+				break;
+			case ("WARN"):
+				LOGGER.warn(formatLogMsg(msg, transactionProperties, eventData));
+				break;
+			default:
+				//do nothing
 		}
+	}
+
+	/*
+	 * Create the log message by adding the transactionProperties to the message as a JSON payload
+	 */
+	private String formatLogMsg(String msg, LinkedHashMap<String, String> transactionProperties) {
+		return formatLogMsg(msg,transactionProperties, Collections.emptyMap());
 	}
 	
 	/*
 	 * Create the log message by adding the transactionProperties to the message as a JSON payload
 	 */
-	private String formatLogMsg(String msg, LinkedHashMap<String, String> transactionProperties) {
+	private String formatLogMsg(String msg, LinkedHashMap<String, String> transactionProperties, Map<String, String> eventData) {
 		ObjectMapper mapper = new ObjectMapper();
-		String payload = "";
+		String logStatement = "";
+		Map<String, Object> logData = new LinkedHashMap<>();
 		try {
 			if (transactionProperties != null) {
-				payload = mapper.writeValueAsString(transactionProperties);
+				logData.put("context",transactionProperties);
 			}
+			if (eventData != null && !eventData.isEmpty()) {
+				logData.put("eventData",eventData);
+			}
+			if (msg != null) {
+				logData.put("message",msg);
+			}
+			if(logData!=null) {
+				logStatement = mapper.writeValueAsString(logData);
+			}
+
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		StringBuilder sb = new StringBuilder();
-		sb.append(msg).append(" ").append(payload);
+		StringBuilder sb = new StringBuilder(logStatement);
 		return sb.toString();
 	}
 }
