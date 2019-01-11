@@ -18,7 +18,7 @@
     </parent>
     
     <properties>
- 		<jackson-2-version>2.9.3</jackson-2-version>
+ 		<jackson-2-version>[2.9.8,)</jackson-2-version>
    </properties>
     
     <dependencies>
@@ -46,5 +46,6 @@
 			<version>${jackson-2-version}</version>
 		</dependency>
     </dependencies>
+    
 
 </project>
