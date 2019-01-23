@@ -58,7 +58,28 @@ The advantage of the log operation is that it will add the transaction propertie
 ```
 	<min-log:log level="WARN" msg="A Test warning" transactionProperties="#[vars.transactionProperties]" doc:name="Example WARN"/>
 ```
-The log operation does not return any values so specifying the target= property is unnecessary.
+or use the level operations:
+
+```
+	<min-log:info msg="A Test info" transactionProperties="#[vars.transactionProperties]" doc:name="Example INFO"/>
+```
+
+```
+	<min-log:warn msg="A Test warning" transactionProperties="#[vars.transactionProperties]" doc:name="Example WARN"/>
+```
+
+```
+	<min-log:error msg="A Test error" transactionProperties="#[vars.transactionProperties]" doc:name="Example ERROR"/>
+```
+
+```
+	<min-log:debug msg="A Test debug" transactionProperties="#[vars.transactionProperties]" doc:name="Example DEBUG"/>
+```
+
+```
+	<min-log:trace msg="A Test trace" transactionProperties="#[vars.transactionProperties]" doc:name="Example TRACE"/>
+```
+The log operation(s) does not return any values so specifying the target= property is unnecessary.
  
 ## Installation Dependency
 To use the minimal-logging, add the following dependency to your Mule 4.1 (or greater) project:
