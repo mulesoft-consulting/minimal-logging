@@ -33,7 +33,7 @@ public class MinLog {
 	/**
 	 * Generate a transaction id if required, otherwise return the current
 	 * transaction id. Creates a transactionProperties (as a LinkedHashMap<String, String>) containing the x-transaction-id and optionally 
-	 * any values from the specified headers (as a MultiMap).
+	 * any values from the specified headers (as a MultiMap). Meant to be used after an http listener.
 	 */
 	@MediaType(value = ANY, strict = false)
 	@Alias("new")
@@ -42,11 +42,6 @@ public class MinLog {
 
 		addLocation("new", transactionProperties, location);
 
-//		if (headers == null) {
-//			System.out.println("headers are null");
-//		} else {
-//			System.out.println("headers: " + headers.toString());
-//		}
 		if (headers != null) {
 			if (headers.get("client_id") != null) {
 				transactionProperties.put("client_id", (String) headers.get("client_id"));
@@ -64,6 +59,42 @@ public class MinLog {
 			logMessage("INFO", "Generated x-transaction-id", transactionProperties);
 		}
 		return transactionProperties;
+	}
+
+	/**
+	 * Generate a new job id into the specified transactionProperties.
+	 */
+	@MediaType(value = ANY, strict = false)
+	@Alias("new-job")
+	public LinkedHashMap<String, String> setJobProperties(@Optional LinkedHashMap<String, String> transactionProperties, ComponentLocation location) {
+		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
+		if (transactionProperties != null) {
+			tempMap.putAll(transactionProperties);
+		}
+
+		addLocation("new-job", tempMap, location);
+
+		tempMap.put("x-job-id", UUID.randomUUID().toString());
+		logMessage("DEBUG", "Generated x-job-id", transactionProperties);
+		return tempMap;
+	}
+
+	/**
+	 * Generate a new record id into the specified transactionProperties.
+	 */
+	@MediaType(value = ANY, strict = false)
+	@Alias("new-record")
+	public LinkedHashMap<String, String> setRecordProperties(@Optional LinkedHashMap<String, String> transactionProperties, ComponentLocation location) {
+		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
+		if (transactionProperties != null) {
+			tempMap.putAll(transactionProperties);
+		}
+
+		addLocation("new-record", tempMap, location);
+
+		tempMap.put("x-record-id", UUID.randomUUID().toString());
+		logMessage("DEBUG", "Generated x-record-id", transactionProperties);
+		return tempMap;
 	}
 	
 	/**

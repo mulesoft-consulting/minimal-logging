@@ -23,6 +23,17 @@ Using external log aggregators and analysis tools will be able to use the x-tran
 
 It's important to remember to specify the target="", otherwise the new LinkedHashMap will replace the inbound request's payload.
 
+Generate an x-job-id or an x-record-id in the specified transaction properties using these tags. The current job or record id will be replaced:
+
+```
+	<min-log:new-job target="transactionProperties" transactionProperties="#[vars.transactionProperties]" doc:id="c5bb0d4e-3d86-4325-bf30-6b702502b6a9" doc:name="new-job" />
+```
+
+```
+	<min-log:new-record target="transactionProperties" transactionProperties="#[vars.transactionProperties]" doc:id="c5bb0d4e-3d86-4325-bf30-6b702502b6a9" doc:name="new-record" />
+```
+
+
 ## Logging Enter and Exit Points
 The minimal logging standard is to log a message when a major flow starts and an similar message when the flow stops. The timed scope component will provide this enter and exit message. In addition, the elapsed time in milliseconds will be added to the exit message. 
 
@@ -88,7 +99,7 @@ To use the minimal-logging, add the following dependency to your Mule 4.1 (or gr
 		<dependency>
 			<groupId>org.mule.consulting.logging</groupId>
 			<artifactId>minimal-logging</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 ```
