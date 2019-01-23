@@ -176,6 +176,121 @@ public class MinLog {
 
 		logMessage(level.toUpperCase(), msg, tempMap);
 	}
+
+	/**
+	 * Generate a log message of level INFO.
+	 * 
+	 * @param msg
+	 * @param transactionProperties
+	 * @param location
+	 */
+	public void info(String msg,
+			@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> transactionProperties, 
+			ComponentLocation location) {
+
+		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
+		if (transactionProperties != null) {
+			for (String item : transactionProperties.keySet()) {
+				tempMap.put(item, transactionProperties.get(item));
+			}
+		}
+
+		addLocation("log", tempMap, location);
+
+		logMessage("INFO", msg, tempMap);
+	}
+
+	/**
+	 * Generate a log message of level WARN.
+	 * 
+	 * @param msg
+	 * @param transactionProperties
+	 * @param location
+	 */
+	public void warn(String msg,
+			@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> transactionProperties, 
+			ComponentLocation location) {
+
+		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
+		if (transactionProperties != null) {
+			for (String item : transactionProperties.keySet()) {
+				tempMap.put(item, transactionProperties.get(item));
+			}
+		}
+
+		addLocation("log", tempMap, location);
+
+		logMessage("WARN", msg, tempMap);
+	}
+
+	/**
+	 * Generate a log message of level ERROR.
+	 * 
+	 * @param msg
+	 * @param transactionProperties
+	 * @param location
+	 */
+	public void error(String msg,
+			@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> transactionProperties, 
+			ComponentLocation location) {
+
+		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
+		if (transactionProperties != null) {
+			for (String item : transactionProperties.keySet()) {
+				tempMap.put(item, transactionProperties.get(item));
+			}
+		}
+
+		addLocation("log", tempMap, location);
+
+		logMessage("ERROR", msg, tempMap);
+	}
+
+	/**
+	 * Generate a log message of level DEBUG.
+	 * 
+	 * @param msg
+	 * @param transactionProperties
+	 * @param location
+	 */
+	public void debug(String msg,
+			@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> transactionProperties, 
+			ComponentLocation location) {
+
+		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
+		if (transactionProperties != null) {
+			for (String item : transactionProperties.keySet()) {
+				tempMap.put(item, transactionProperties.get(item));
+			}
+		}
+
+		addLocation("log", tempMap, location);
+
+		logMessage("DEBUG", msg, tempMap);
+	}
+
+	/**
+	 * Generate a log message of level TRACE.
+	 * 
+	 * @param msg
+	 * @param transactionProperties
+	 * @param location
+	 */
+	public void trace(String msg,
+			@Optional(defaultValue="#[{}]") @ParameterDsl(allowInlineDefinition=false) LinkedHashMap<String, String> transactionProperties, 
+			ComponentLocation location) {
+
+		LinkedHashMap<String, String> tempMap = new LinkedHashMap<String, String>();
+		if (transactionProperties != null) {
+			for (String item : transactionProperties.keySet()) {
+				tempMap.put(item, transactionProperties.get(item));
+			}
+		}
+
+		addLocation("log", tempMap, location);
+
+		logMessage("TRACE", msg, tempMap);
+	}
 	
 	/*
 	 * Add component location values to the transactionProperties
@@ -213,6 +328,9 @@ public class MinLog {
 			break;
 		case ("WARN"):
 			LOGGER.warn(formatLogMsg(msg, transactionProperties));
+			break;
+		case ("TRACE"):
+			LOGGER.trace(formatLogMsg(msg, transactionProperties));
 			break;
 		default:
 			//do nothing
