@@ -88,7 +88,7 @@ or use the level operations:
 ```
 
 ```
-	<min-log:trace msg="A Test trace" transactionProperties="#[vars.transactionProperties]" doc:name="Example TRACE"/>
+	<min-log:trace msg="A Test trace" transactionProperties="#[vars.transactionProperties]" doc:name="Example TRACE log message"/>
 ```
 The log operation(s) does not return any values so specifying the target= property is unnecessary.
  
