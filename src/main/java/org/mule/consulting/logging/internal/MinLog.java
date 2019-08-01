@@ -44,12 +44,12 @@ public class MinLog {
 
 		if (headers != null) {
 			if (headers.get("client_id") != null) {
-				transactionProperties.put("client_id", (String) headers.get("client_id"));
+				transactionProperties.put("client_id", (String) headers.get("client_id").toString());
 			}
 			if (headers.get("x-transaction-id") != null) {
-				transactionProperties.put("x-transaction-id", (String) headers.get("x-transaction-id"));
+				transactionProperties.put("x-transaction-id", (String) headers.get("x-transaction-id").toString());
 			} else if (headers.get("x_transaction_id") != null) {
-				transactionProperties.put("x-transaction-id", (String) headers.get("x_transaction_id"));				
+				transactionProperties.put("x-transaction-id", (String) headers.get("x_transaction_id").toString());				
 			} else {
 				transactionProperties.put("x-transaction-id", UUID.randomUUID().toString());
 				logMessage("INFO", "Generated x-transaction-id", transactionProperties);

@@ -99,7 +99,7 @@ To use the minimal-logging, add the following dependency to your Mule 4.1 (or gr
 		<dependency>
 			<groupId>org.mule.consulting.logging</groupId>
 			<artifactId>minimal-logging</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.4</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 ```
